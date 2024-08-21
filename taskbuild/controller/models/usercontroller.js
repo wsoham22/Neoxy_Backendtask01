@@ -16,6 +16,9 @@ exports.getAllUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
     try {
         const { name, email, password,confirmpassword,role,image} = req.body;
+        if (!name || !email || !password || !confirmpassword || !role) {
+            return res.status(400).json({ error: 'Make sure you are filling all details' });
+        }
         if(confirmpassword !== password){
             return res.status(500).json({error: 'Passwords doesnt match'});
         }
@@ -50,7 +53,7 @@ exports.loginUser = async (req, res) => {
 
         // Find the user by email
         const user = await User.findOne({ email });
-        const role = user.role;
+
         // Check if the user exists
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -63,18 +66,17 @@ exports.loginUser = async (req, res) => {
         }
 
         // Generate and send a JWT token for authentication
-        const token = jwt.sign({ userId: user._id ,role: user.role}, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
         console.log(token);
         console.log("User logged!");
-        res.status(200).json({ message: `Logged in as ${role}`,token : token});
-        // Alternatively, you can send the token in the response if needed
-        // res.json({ token });
+        res.status(200).json({ message: `Logged in as ${user.role}`, token });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 exports.getUserById = async (req, res) => {
     try {

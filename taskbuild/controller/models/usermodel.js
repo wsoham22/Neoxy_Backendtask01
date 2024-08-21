@@ -1,17 +1,30 @@
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
+const path = require('path');
 const fs = require('fs');
-const settings = JSON.parse(fs.readFileSync('C:/Neoxy/taskbuild/controller/models/imagesettings.json', 'utf8'));
+
+// Construct the path to the JSON file one directory up
+const settingsPath = path.join(__dirname, '..', 'imagesettings.json');
+let settings;
+try {
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+} catch (error) {
+    console.error('Error reading or parsing settings file:', error);
+    process.exit(1);
+}
+
+// Configure Cloudinary
 cloudinary.config(settings.cloudinary);
-// Define Mongoose Schema for User
+
+// Define the user schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
         maxlength: 50,
         required: true
     },
-    image:{
-        type:String
+    image: {
+        type: String
     },
     email: {
         type: String,
@@ -26,29 +39,30 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['user', 'admin', 'superadmin'],
-        default: 'user' 
+        default: 'user'
     },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     enrolledCourses: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course' // Reference to the Course model
+        ref: 'Course' 
     }]
-},{ strictPopulate: false });
-// Middleware to handle image uploading
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('image')) {
-        return next();
-    }
-    try {
-        // Upload image to Cloudinary
-        const uploadedImage = await cloudinary.uploader.upload(this.image, { folder: 'users_profile' });
-        // Update user's image field with the Cloudinary URL
-        this.image = uploadedImage.secure_url;
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
+}, { strictPopulate: false });
+
+// // Middleware to handle image uploading
+// userSchema.pre('save', async function(next) {
+//     if (!this.isModified('image') || !this.image) {
+//         return next();
+//     }
+//     try {
+//         const uploadedImage = await cloudinary.uploader.upload(this.image, { folder: 'users_profile' });
+//         this.image = uploadedImage.secure_url; 
+//         next(); 
+//     } catch (error) {
+//         console.error('Error uploading image to Cloudinary:', error);
+//         next(error);
+//     }
+// });
+
 const User = mongoose.model('NeoxyUser', userSchema);
 module.exports = User;

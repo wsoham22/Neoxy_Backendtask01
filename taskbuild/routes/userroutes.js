@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const UserController = require("../controller/models/usercontroller");
 const adminAuthMiddleware = require("../auth/adminauth").adminAuthMiddleware
-
+const mediaController = require('./../controller/mediaController');
 
 
 router.post('/signup', UserController.createUser);
 router.post('/requestresetPassword',UserController.requestPasswordReset);
+router.post('/upload-profile-image', mediaController.uploadProfileImage);
 router.post('/resetpassword', UserController.resetPassword);
 router.post('/login', UserController.loginUser);
 router.use(adminAuthMiddleware);

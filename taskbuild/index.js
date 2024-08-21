@@ -14,8 +14,8 @@ app.use(cors());
 app.use('/api',userroutes);
 app.use('/api',courseroutes);
 // Connect to MongoDB
-const password = process.env.MONGODB_PASSWORD || '';
-const URL = process.env.MONGODB_URL.replace('password', password);
+// const password = process.env.MONGODB_PASSWORD || '';
+const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
     useNewUrlParser: true,

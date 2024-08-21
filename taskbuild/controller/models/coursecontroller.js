@@ -78,8 +78,6 @@ exports.enrollCourse = async (req, res) => {
         if (user.enrolledCourses.some(course => course._id.equals(courseId))) {
             return res.status(400).json({ error: 'You are already enrolled in this course' });
         }
-
-        // Enroll the user in the course
         user.enrolledCourses.push(courseId);
         await user.save();
         const course = await Course.findById(courseId);
@@ -96,8 +94,6 @@ exports.enrollCourse = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
-
 exports.viewEnrolledCourses = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]; // Extract JWT token from Authorization header
